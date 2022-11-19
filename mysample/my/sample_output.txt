@@ -1,0 +1,10 @@
+finnish
+italian
+danish
+german
+finnish
+german
+italian
+english
+turkish
+dutch

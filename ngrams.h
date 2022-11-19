@@ -47,7 +47,7 @@ public:
     FileReader(const FileReader&) = delete;
     FileReader& operator=(const FileReader&) = delete;
 
-    void ReadLine(std::string &buffer)
+    void ReadLine(std::string& buffer)
     {
         std::getline(file_stream, buffer);
     }
@@ -208,7 +208,6 @@ struct RadixTree {
 
         ~RadixNode()
         {
-            
         }
     };
 
@@ -219,7 +218,6 @@ struct RadixTree {
 
     ~RadixTree()
     {
-        
     }
 
     void AddWord(const char* data, size_t size)
@@ -264,7 +262,6 @@ struct RadixTree {
     std::vector<NGram> GatterWord()
     {
         std::vector<NGram> ngrams;
-        // std::cout << "unique_word_size = " << unique_word_size << "\n";
         ngrams.reserve(unique_word_size);
         RadixNode* p = root.get();
         std::string path;
@@ -323,7 +320,7 @@ public:
 
     std::vector<NGram> ParseText(const std::string& text)
     {
-        
+
         // Clear hash table
         ngram_map_.clear();
         int c = 0;
@@ -348,7 +345,6 @@ public:
         for (const auto& ngram : ngram_map_) {
             ngrams.push_back(NGram(ngram.first, ngram.second));
         }
-        
 
         std::sort(ngrams.begin(), ngrams.end(), [&](const NGram& lhs, const NGram& rhs) {
             if (lhs.count == rhs.count) {
@@ -362,7 +358,7 @@ public:
 
     void Parse()
     {
-        auto start = std::chrono::system_clock::now();
+        // auto start = std::chrono::system_clock::now();
         int c = 0;
         bool seen = false;
         while ((c = reader_.ReadChar()) != EOF) {
@@ -376,120 +372,39 @@ public:
                 Process(c);
             }
         }
+        /*
         auto end = std::chrono::system_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
         std::cout << "parse time : " << (double)duration.count() * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den << "秒"
                   << "\n";
+                  */
     }
 
     template <bool HASH_TABLE = false>
     void Process(int c)
     {
-        // char_cacher_.push_back((char)c);
-        // size_t size = char_cacher_.size();
-       //  std::cout << "char : " << (int)c << "\n";
         cque_.enQueue((char)c);
         size_t size = cque_.size_;
-
-        // deque_vec_.push_back((char)c);
-        // size_t loop_size = std::min(deque_vec_.size(), NGRAM);
-        // size_t size = deque_vec_.size();
-
-        // std::string str;
-        // str.reserve(5);
 
         static char chars[NGRAM];
         cque_.Traverse(chars);
 
-        /*
-        for(size_t i = 0; i < NGRAM; ++i) {
-            std::cout << (int)chars[i] << ", ";
-        }
-        std::cout << "\n";
-        */
-
-        // Fast restrive
-        /*
-        deque_vec_.clear();
-        for (size_t index = 0; index < size; ++index) {
-            deque_vec_.push_back(char_cacher_[index]);
-        }
-        */
-
         for (size_t index = size; index > 0; --index) {
-            // str.clear();
-            // size_t c_idx = 0;
             if constexpr (!HASH_TABLE) {
-                // std::cout << "std::string = " << std::string(chars + (size - index), index) << "\n";
                 tree_.AddWord(chars + (size - index), index);
             } else {
-                // std::cout << "std::string = " << std::string(chars + (size - index), index) << "\n";
                 ngram_map_[std::string(chars + (size - index), index)]++;
             }
-
-            /*
-            for (size_t vec_index = size - index; vec_index < size; vec_index++) {
-                str.push_back(deque_vec_[vec_index]);
-            }
-            */
-
-            /*
-            for (size_t vec_index = size - index; vec_index < size; vec_index++) {
-                str.push_back(deque_vec_[vec_index]);
-            }
-            */
-
-            /*
-            auto iter = char_cacher_.begin() + (size - index);
-            while(iter != char_cacher_.end()) {
-                str.push_back(*iter);
-                ++iter;
-            }
-            */
-            /*
-            for (size_t vec_index = 0; vec_index < 5; ++vec_index) {
-                str.push_back(deque_vec_[vec_index]);
-            }
-            */
-            /*
-            for (size_t deq_index = size - index; deq_index < size; deq_index++) {
-                str.push_back(char_cacher_[deq_index]);
-                // chars[c_idx++] = char_cacher_[deq_index];
-            }
-            */
-            // string_t str(chars, c_idx);
-            // ngram_map_vec_[0][str]++;
-
-            // radix tree
-            // tree_.AddWord(str);
         }
 
         if (cque_.isFull()) {
             cque_.deQueue();
         }
-
-        /*
-        if (size == NGRAM) {
-            char_cacher_.pop_front();
-        }
-        */
-
-        /*
-        if (size == 1024) {
-            for (size_t index = 0; index < NGRAM; ++index) {
-                deque_vec_[index] = deque_vec_[size - NGRAM + index];
-            }
-            deque_vec_.resize(NGRAM);
-            std::cout << "DEBUG: " << deque_vec_.capacity() << "\n";
-        }
-        */
     }
 
     void Generate()
     {
-#if 1
-        std::cout << "AddWord call nums : " << tree_.total_count << "\n";
-        auto start = std::chrono::system_clock::now();
+        // auto start = std::chrono::system_clock::now();
         auto ngrams = tree_.GatterWord();
         std::sort(ngrams.begin(), ngrams.end(), [&](const NGram& lhs, const NGram& rhs) {
             if (lhs.count == rhs.count) {
@@ -508,112 +423,22 @@ public:
             writer.WriteLine(encode_str);
         }
 
-#endif
-
-#if 0
-        auto start = std::chrono::system_clock::now();
-        std::vector<std::vector<NGram>> ngram_vecs(NGRAM);
-        for (size_t index = 0; index < NGRAM; ++index) {
-            auto& ngram_map = ngram_map_vec_[index];
-            auto& ngram_vec = ngram_vecs[index];
-            ngram_vec.reserve(ngram_map.size());
-            auto iter = ngram_map.begin();
-            while (iter != ngram_map.end()) {
-                ngram_vec.push_back(NGram(iter->first, iter->second));
-                iter++;
-            }
-        }
-        std::vector<std::future<void>> futs;
-        for (size_t index = 0; index < NGRAM; ++index) {
-            auto& ngram_vec = ngram_vecs[index];
-
-            auto fut = std::async(std::launch::async, [&] { std::sort(ngram_vec.begin(), ngram_vec.end(), [&](const NGram& lhs, const NGram& rhs) {
-                                                                if (lhs.count == rhs.count) {
-                                                                    return lhs.str < rhs.str;
-                                                                }
-                                                                return lhs.count > rhs.count;
-                                                            }); });
-            futs.push_back(std::move(fut));
-
-            /*
-            std::sort(ngram_vec.begin(), ngram_vec.end(), [&](const NGram& lhs, const NGram& rhs) {
-                if (lhs.count == rhs.count) {
-                    return lhs.str < rhs.str;
-                }
-                return lhs.count > rhs.count;
-            });
-            */
-        }
-
-        for (size_t index = 0; index < NGRAM; ++index) {
-            futs[index].get();
-        }
-
-#endif
-#if 0
-        auto start = std::chrono::system_clock::now();
-
-        size_t size = 0;
-        for (size_t index = 0; index < NGRAM; ++index) {
-            size += ngram_map_vec_[index].size();
-        }
-        std::cout << "size = " << size << "\n";
-        std::vector<NGram> ngram_vec;
-        ngram_vec.reserve(size);
-        for (size_t index = 0; index < NGRAM; ++index) {
-            auto& ngram_map = ngram_map_vec_[index];
-            auto iter = ngram_map.begin();
-            while (iter != ngram_map.end()) {
-                ngram_vec.push_back(NGram(iter->first, iter->second));
-                iter++;
-            }
-        }
-
-        std::sort(ngram_vec.begin(), ngram_vec.end(), [&](const NGram& lhs, const NGram& rhs) {
-            if (lhs.count == rhs.count) {
-                return lhs.str < rhs.str;
-            }
-            return lhs.count > rhs.count;
-        });
-#endif
-
+        /*
         auto end
             = std::chrono::system_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
         std::cout << "generate time : " << (double)duration.count() * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den << "秒"
                   << "\n";
-
-        /**
-        for (const auto& ngram : ngram_vec) {
-            std::cout << "value : " << ngram.str << ", count : " << ngram.count << "\n";
-        }
-        */
-
-        /*
-        for (size_t index = 0; index < NGRAM; ++index) {
-            std::cout <<        "############# " << index + 1 << "gram"
-                      << "\n";
-            for (const auto& ngram : ngram_vecs[index]) {
-                std::cout << "value : " << ngram.str << ", count : " << ngram.count << "\n";
-            }
-        }
-        */
+                  */
     }
 
 private:
     FileReader reader_;
     std::string output_file_name_;
-    // std::unordered_map<string_t, int> ngram_map_vec_[NGRAM];
-    // std::unordered_map<string_t, int, NGramHashFunction, NGramEquality> ngram_map_vec_[NGRAM];
-    // std::unordered_map<std::string, int> ngram_map_vec_[NGRAM];
     RadixTree tree_;
     std::unordered_map<std::string, int> ngram_map_;
-    // std::deque<char> char_cacher_;
-    // std::vector<char> deque_vec_;
-    // size_t deque_vec_index_ = 0;
     CircularQueue<NGRAM> cque_;
     size_t debug_index_;
-    // std::string text_;
 
 private:
     bool NeedToReplace(int c) const

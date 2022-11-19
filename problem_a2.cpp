@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
         auto ngrams_vec = ngrams_parser.ParseText(text);
         distiance.clear();
         distiance.resize(pos_map_vec.size(), 0);
-        
+
         for (size_t midx = 0; midx < pos_map_vec.size(); ++midx) {
             auto& pos_map = pos_map_vec[midx];
             for (size_t index = 0; index < ngrams_vec.size(); ++index) {
@@ -143,7 +143,6 @@ int main(int argc, char* argv[])
                 }
             }
         }
-        
 
         size_t min_index = std::min_element(distiance.begin(), distiance.end()) - distiance.begin();
 
@@ -156,5 +155,6 @@ int main(int argc, char* argv[])
     std::cout << "time : " << (double)duration.count() * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den << "秒"
               << "\n";
     */
+
     return 0;
 }
